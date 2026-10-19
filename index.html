@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>States · CMs · Governors</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1c1b19;--mute:#6b6862;--line:#e4e1d9;--acc:#1d4ed8;--accbg:#e8eefc;--ok:#15803d;--okbg:#e3f4e8;--bad:#b91c1c;--badbg:#fbe7e7;--new:#b45309;--newbg:#fdf0d9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121211;--card:#1c1c1a;--ink:#f1efe9;--mute:#9b978e;--line:#2d2c29;--acc:#7aa2ff;--accbg:#1c2740;--ok:#4ade80;--okbg:#14301f;--bad:#f87171;--badbg:#3a1a1a;--new:#fbbf24;--newbg:#3a2c10}}
+:root[data-theme="dark"]{--bg:#121211;--card:#1c1c1a;--ink:#f1efe9;--mute:#9b978e;--line:#2d2c29;--acc:#7aa2ff;--accbg:#1c2740;--ok:#4ade80;--okbg:#14301f;--bad:#f87171;--badbg:#3a1a1a;--new:#fbbf24;--newbg:#3a2c10}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.4}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));min-height:100vh}
+header{padding:14px 16px 8px}
+h1{font-size:20px;margin:0}
+.sub{color:var(--mute);font-size:13px;margin-top:2px}
+main{padding:0 12px;max-width:640px;margin:0 auto}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--mute);padding:10px 0 9px;font-size:12px;font-weight:600;cursor:pointer}
+nav button .i{display:block;font-size:20px;line-height:1.1}
+nav button.on{color:var(--acc)}
+.view{display:none}.view.on{display:block}
+input[type=search]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-size:16px;margin:6px 0 8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:600;cursor:pointer}
+.chip.on{background:var(--accbg);color:var(--acc);border-color:var(--acc)}
+.row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px}
+.row .st{font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.row .cap{color:var(--mute);font-size:12px;font-weight:500}
+.kv{display:flex;gap:8px;margin-top:7px;font-size:15px}
+.kv b{flex:none;width:84px;color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+.tag{display:inline-block;font-size:11px;font-weight:700;background:var(--newbg);color:var(--new);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:1px}
+.was{color:var(--mute);font-size:12px;margin-top:3px;margin-left:92px}
+.star{border:0;background:none;font-size:20px;cursor:pointer;color:var(--mute);padding:0 2px}
+.star.on{color:#e0a100}
+.fc{perspective:900px;margin:8px 0 12px}
+.fcc{min-height:260px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;user-select:none}
+.fcc .big{font-size:30px;font-weight:800}
+.fcc .hint{color:var(--mute);font-size:13px;margin-top:10px}
+.fcc .ans{width:100%;text-align:left}
+.fcc .ans .kv{font-size:18px}
+.bar{display:flex;gap:10px}
+.btn{flex:1;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.ok{background:var(--okbg);color:var(--ok);border-color:transparent}
+.btn.no{background:var(--badbg);color:var(--bad);border-color:transparent}
+.btn.pri{background:var(--acc);color:#fff;border-color:transparent}
+.prog{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin:4px 0 6px}
+.prog i{display:block;height:100%;background:var(--acc);width:0;transition:width .2s}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:13px;margin-bottom:4px}
+.q{font-size:20px;font-weight:700;margin:14px 2px 14px}
+.opt{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:14px;padding:14px;font-size:16px;margin-bottom:9px;cursor:pointer}
+.opt.right{background:var(--okbg);border-color:var(--ok);color:var(--ok);font-weight:700}
+.opt.wrong{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.score{text-align:center;padding:28px 10px}
+.score .n{font-size:54px;font-weight:800}
+.note{color:var(--mute);font-size:12px;padding:10px 4px 18px}
+.empty{text-align:center;color:var(--mute);padding:40px 10px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏛️ States · CMs · Governors</h1>
+  <div class="sub">Banking exam revision · data as of 19 Oct 2026</div>
+</header>
+<main>
+  <section id="v-list" class="view on">
+    <input type="search" id="q" placeholder="Search state, CM or governor…">
+    <div class="chips" id="lchips"></div>
+    <div id="list"></div>
+    <div class="note">Sources: Anantam IAS CM list (updated 3 Sep 2026), Wikipedia and PIB/AIR/news reports on the 12 Oct 2026 governor appointments. Governor changes take effect when the appointee assumes charge, so double-check Kerala, Odisha, Uttarakhand and Sikkim against the latest news before an exam.</div>
+  </section>
+
+  <section id="v-cards" class="view">
+    <div class="chips" id="cchips"></div>
+    <div class="meta"><span id="cpos"></span><span id="cknown"></span></div>
+    <div class="prog"><i id="cbar"></i></div>
+    <div class="fc"><div class="fcc" id="card"></div></div>
+    <div class="bar"><button class="btn no" id="again">Again</button><button class="btn ok" id="got">Got it</button></div>
+    <div class="bar" style="margin-top:10px"><button class="btn" id="shuf">🔀 Shuffle</button><button class="btn" id="rst">↺ Restart</button></div>
+  </section>
+
+  <section id="v-quiz" class="view">
+    <div id="qsetup">
+      <div class="q">Quick quiz</div>
+      <div class="chips" id="qchips"></div>
+      <button class="btn pri" id="qstart" style="width:100%">Start 10 questions</button>
+      <div class="note">Wrong answers are starred automatically so you can drill them in Flashcards → ★ Starred.</div>
+    </div>
+    <div id="qplay" style="display:none"></div>
+  </section>
+</main>
+<nav>
+  <button class="on" data-v="list"><span class="i">📋</span>Browse</button>
+  <button data-v="cards"><span class="i">🗂️</span>Flashcards</button>
+  <button data-v="quiz"><span class="i">🎯</span>Quiz</button>
+</nav>
+
+<script>
+// [state, capital, CM, Governor, flags]  flags: cm = new CM in 2026; gov = governor appointed Oct 2026 (was: previous)
+var D=[
+["Andhra Pradesh","Amaravati","N. Chandrababu Naidu","S. Abdul Nazeer"],
+["Arunachal Pradesh","Itanagar","Pema Khandu","Kaiwalya Trivikram Parnaik"],
+["Assam","Dispur","Himanta Biswa Sarma","Lakshman Prasad Acharya"],
+["Bihar","Patna","Samrat Choudhary","Syed Ata Hasnain",{cm:1}],
+["Chhattisgarh","Raipur","Vishnu Deo Sai","Ramen Deka"],
+["Goa","Panaji","Pramod Sawant","Ashok Gajapati Raju"],
+["Gujarat","Gandhinagar","Bhupendra Patel","Acharya Devvrat"],
+["Haryana","Chandigarh","Nayab Singh Saini","Ashim Kumar Ghosh"],
+["Himachal Pradesh","Shimla","Sukhvinder Singh Sukhu","Kavinder Gupta"],
+["Jharkhand","Ranchi","Hemant Soren","Santosh Kumar Gangwar"],
+["Karnataka","Bengaluru","D. K. Shivakumar","Dr. Sudha Yadav",{cm:1,gov:"Thaawarchand Gehlot"}],
+["Kerala","Thiruvananthapuram","V. D. Satheesan","Om Prakash Mathur",{cm:1,gov:"Rajendra V. Arlekar"}],
+["Madhya Pradesh","Bhopal","Mohan Yadav","Mangubhai C. Patel"],
+["Maharashtra","Mumbai","Devendra Fadnavis","Jishnu Dev Varma"],
+["Manipur","Imphal","Yumnam Khemchand Singh","Ajay Kumar Bhalla",{cm:1}],
+["Meghalaya","Shillong","Conrad Sangma","C. H. Vijayashankar"],
+["Mizoram","Aizawl","Lalduhoma","V. K. Singh"],
+["Nagaland","Kohima","Neiphiu Rio","Nand Kishore Yadav"],
+["Odisha","Bhubaneswar","Mohan Charan Majhi","Braj Mohan Ram",{gov:"Hari Babu Kambhampati"}],
+["Punjab","Chandigarh","Bhagwant Mann","Gulab Chand Kataria"],
+["Rajasthan","Jaipur","Bhajan Lal Sharma","Haribhau Bagade"],
+["Sikkim","Gangtok","Prem Singh Tamang","Dushyant Gautam",{gov:"Om Prakash Mathur"}],
+["Tamil Nadu","Chennai","C. Joseph Vijay","Rajendra V. Arlekar",{cm:1,gov:"Arlekar (additional charge since Mar 2026)"}],
+["Telangana","Hyderabad","A. Revanth Reddy","Shiv Pratap Shukla"],
+["Tripura","Agartala","Manik Saha","Indra Sena Reddy Nallu"],
+["Uttar Pradesh","Lucknow","Yogi Adityanath","Anandiben Patel"],
+["Uttarakhand","Dehradun","Pushkar Singh Dhami","Dr. Dhal Singh Bisen",{gov:"Lt Gen Gurmit Singh (Retd)"}],
+["West Bengal","Kolkata","Suvendu Adhikari","R. N. Ravi",{cm:1}]
+].map(function(r,i){var f=r[4]||{};return{id:i,s:r[0],cap:r[1],cm:r[2],gov:r[3],newCm:!!f.cm,newGov:!!f.gov,was:f.gov||""}});
+
+var $=function(s){return document.querySelector(s)};
+var weak={};try{weak=JSON.parse(localStorage.getItem("weak")||"{}")}catch(e){}
+function saveWeak(){try{localStorage.setItem("weak",JSON.stringify(weak))}catch(e){}}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+// nav
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){
+  document.querySelectorAll("nav button").forEach(function(x){x.classList.toggle("on",x===b)});
+  document.querySelectorAll(".view").forEach(function(v){v.classList.toggle("on",v.id==="v-"+b.dataset.v)});
+  window.scrollTo(0,0);
+}});
+
+function chips(el,opts,cur,cb){el.innerHTML=opts.map(function(o){return'<button class="chip'+(o[0]===cur()?' on':'')+'" data-k="'+o[0]+'">'+o[1]+'</button>'}).join("");
+  el.querySelectorAll(".chip").forEach(function(c){c.onclick=function(){cb(c.dataset.k);chips(el,opts,cur,cb)}})}
+
+// ---- Browse
+var lf="all";
+function filt(f){return D.filter(function(d){return f==="all"||(f==="new"&&(d.newCm||d.newGov))||(f==="star"&&weak[d.id])})}
+function renderList(){
+  var t=$("#q").value.trim().toLowerCase();
+  var rows=filt(lf).filter(function(d){return !t||(d.s+" "+d.cm+" "+d.gov+" "+d.cap).toLowerCase().indexOf(t)>-1});
+  $("#list").innerHTML=rows.length?rows.map(function(d){
+    return'<div class="row"><div class="st"><span>'+esc(d.s)+' <span class="cap">· '+esc(d.cap)+'</span></span><button class="star'+(weak[d.id]?' on':'')+'" data-id="'+d.id+'" aria-label="Star">'+(weak[d.id]?'★':'☆')+'</button></div>'
+    +'<div class="kv"><b>CM</b><span>'+esc(d.cm)+(d.newCm?'<span class="tag">NEW 2026</span>':'')+'</span></div>'
+    +'<div class="kv"><b>Governor</b><span>'+esc(d.gov)+(d.newGov?'<span class="tag">NEW OCT 2026</span>':'')+'</span></div>'
+    +(d.was?'<div class="was">previously: '+esc(d.was)+'</div>':'')+'</div>'}).join(""):'<div class="empty">Nothing here yet.</div>';
+  document.querySelectorAll(".star").forEach(function(b){b.onclick=function(){var id=b.dataset.id;if(weak[id])delete weak[id];else weak[id]=1;saveWeak();renderList()}});
+}
+chips($("#lchips"),[["all","All 28"],["new","New in 2026"],["star","★ Starred"]],function(){return lf},function(k){lf=k;renderList()});
+$("#q").oninput=renderList;renderList();
+
+// ---- Flashcards
+var cf="all",deck=[],ci=0,flipped=false,known={};
+function build(){deck=filt(cf).map(function(d){return d.id});ci=0;flipped=false;known={};drawCard()}
+function drawCard(){
+  var n=deck.length;
+  if(!n){$("#card").innerHTML='<div class="hint">No cards in this set.</div>';$("#cpos").textContent="0 / 0";$("#cknown").textContent="";$("#cbar").style.width="0";return}
+  if(ci>=n){var k=Object.keys(known).length;$("#card").innerHTML='<div class="big">🎉 Done</div><div class="hint">'+k+' of '+n+' marked “Got it”. Tap Restart or shuffle to go again.</div>';$("#cpos").textContent=n+" / "+n;$("#cknown").textContent="";$("#cbar").style.width="100%";return}
+  var d=D[deck[ci]];
+  $("#cpos").textContent=(ci+1)+" / "+n;$("#cknown").textContent="Known: "+Object.keys(known).length;$("#cbar").style.width=(ci/n*100)+"%";
+  if(!flipped)$("#card").innerHTML='<div class="big">'+esc(d.s)+'</div><div class="hint">Who is the CM and Governor? Tap to reveal</div>';
+  else $("#card").innerHTML='<div class="ans"><div class="big" style="font-size:22px;margin-bottom:12px;text-align:center">'+esc(d.s)+'</div><div class="kv"><b>CM</b><span>'+esc(d.cm)+'</span></div><div class="kv"><b>Governor</b><span>'+esc(d.gov)+'</span></div><div class="kv"><b>Capital</b><span>'+esc(d.cap)+'</span></div></div>';
+}
+$("#card").onclick=function(){if(ci<deck.length){flipped=!flipped;drawCard()}};
+$("#got").onclick=function(){if(ci>=deck.length)return;known[deck[ci]]=1;delete weak[deck[ci]];saveWeak();ci++;flipped=false;drawCard();renderList()};
+$("#again").onclick=function(){if(ci>=deck.length)return;weak[deck[ci]]=1;saveWeak();ci++;flipped=false;drawCard();renderList()};
+$("#shuf").onclick=function(){deck=shuffle(deck);ci=0;flipped=false;known={};drawCard()};
+$("#rst").onclick=build;
+chips($("#cchips"),[["all","All"],["new","New in 2026"],["star","★ Starred"]],function(){return cf},function(k){cf=k;build()});
+build();
+
+// ---- Quiz
+var qm="mix",qs=[],qi=0,sc=0;
+chips($("#qchips"),[["mix","Mixed"],["cm","CM"],["gov","Governor"],["rev","Who → State"]],function(){return qm},function(k){qm=k});
+function mk(d,type){
+  var key=type==="cm"?"cm":"gov",ans,opts,text;
+  if(type==="rev"){var f=Math.random()<.5?"cm":"gov";text="Which state has "+d[f]+" as "+(f==="cm"?"Chief Minister":"Governor")+"?";ans=d.s;opts=shuffle(D.filter(function(x){return x.id!==d.id})).slice(0,3).map(function(x){return x.s})}
+  else{text=(key==="cm"?"Chief Minister":"Governor")+" of "+d.s+"?";ans=d[key];opts=shuffle(D.filter(function(x){return x.id!==d.id&&x[key]!==ans})).slice(0,3).map(function(x){return x[key]})}
+  return{id:d.id,text:text,ans:ans,opts:shuffle(opts.concat([ans]))}}
+$("#qstart").onclick=function(){
+  var pool=shuffle(D).slice(0,10);
+  qs=pool.map(function(d){var t=qm==="mix"?["cm","gov","rev"][Math.floor(Math.random()*3)]:qm;return mk(d,t)});
+  qi=0;sc=0;$("#qsetup").style.display="none";$("#qplay").style.display="block";showQ()};
+function showQ(){
+  if(qi>=qs.length){$("#qplay").innerHTML='<div class="score"><div class="n">'+sc+' / '+qs.length+'</div><div class="hint" style="color:var(--mute)">Missed ones are starred for revision.</div></div><button class="btn pri" style="width:100%" id="qagain">Play again</button>';$("#qagain").onclick=function(){$("#qplay").style.display="none";$("#qsetup").style.display="block"};renderList();return}
+  var q=qs[qi];
+  $("#qplay").innerHTML='<div class="meta"><span>Question '+(qi+1)+' / '+qs.length+'</span><span>Score '+sc+'</span></div><div class="prog"><i style="width:'+(qi/qs.length*100)+'%"></i></div><div class="q">'+esc(q.text)+'</div>'+q.opts.map(function(o,i){return'<button class="opt" data-i="'+i+'">'+esc(o)+'</button>'}).join("")+'<button class="btn pri" id="nx" style="width:100%;display:none;margin-top:4px">Next</button>';
+  var done=false;
+  document.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
+    if(done)return;done=true;var ok=q.opts[+b.dataset.i]===q.ans;
+    if(ok)sc++;else{weak[q.id]=1;saveWeak()}
+    document.querySelectorAll(".opt").forEach(function(x){var v=q.opts[+x.dataset.i];if(v===q.ans)x.classList.add("right");else if(x===b)x.classList.add("wrong")});
+    $("#nx").style.display="block";$("#nx").onclick=function(){qi++;showQ()};
+  }});
+}
+</script>
+</body>
+</html>
